@@ -1,0 +1,9 @@
+# macOS folder metadata
+.DS_Store
+
+# Machine-local Claude Code settings: may hold secrets, never commit
+claude/settings.local.json
+settings.local.json
+
+# Backups created by scripts/setup_claude_symlinks.sh or by hand
+*.backup-*
