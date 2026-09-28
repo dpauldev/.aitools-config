@@ -1,9 +1,14 @@
+---
+applyTo: "**"
+---
 <!--
 Source: distilled from Andrej Karpathy's public observations on common LLM
 coding pitfalls into this guideline form by the multica-ai/andrej-karpathy-skills
 project (https://github.com/multica-ai/andrej-karpathy-skills), MIT licensed.
-Local change from the original: one scoping note added under "Goal-Driven
-Execution" (marked below). Otherwise verbatim.
+Local changes from the original: (1) the `applyTo: "**"` front-matter
+header above, which tells GitHub Copilot to apply this file everywhere;
+(2) one scoping note added under "Goal-Driven Execution" (marked below).
+Otherwise verbatim.
 -->
 
 # Karpathy-Derived Coding Guidelines

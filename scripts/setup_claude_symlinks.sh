@@ -6,7 +6,7 @@ set -e
 CONFIG_REPO="$HOME/.aitools-config/claude"
 CLAUDE_DIR="$HOME/.claude"
 
-echo "Checking Claude Code configuration..."
+echo "Checking AI tool configuration (Claude Code, GitHub Copilot)..."
 
 # Ensure the target directory exists (Claude Code creates it on first run,
 # but a completely fresh machine may not have it yet)
@@ -71,7 +71,6 @@ link_item() {
 # --- Root-level files ---------------------------------------------------
 
 link_item "$CONFIG_REPO/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
-link_item "$CONFIG_REPO/karpathy-guidelines.md" "$CLAUDE_DIR/karpathy-guidelines.md"
 link_item "$CONFIG_REPO/settings.json" "$CLAUDE_DIR/settings.json"
 
 # --- Skills ---------------------------------------------------------------
@@ -120,5 +119,14 @@ if [ -d "$CONFIG_REPO/hooks" ]; then
         link_item "$hook_file" "$CLAUDE_DIR/hooks/$hook_name"
     done
 fi
+
+# --- GitHub Copilot (VS Code) --------------------------------------------
+# Copilot has no @import, so the shared files are linked in directly.
+SHARED_DIR="$HOME/.aitools-config/shared"
+COPILOT_DIR="$HOME/.copilot"
+
+mkdir -p "$COPILOT_DIR/instructions"
+link_item "$SHARED_DIR/AGENTS.md" "$COPILOT_DIR/copilot-instructions.md"
+link_item "$SHARED_DIR/karpathy-guidelines.md" "$COPILOT_DIR/instructions/karpathy-guidelines.instructions.md"
 
 echo "Done."

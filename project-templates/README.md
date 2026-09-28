@@ -1,7 +1,7 @@
 # Project templates
 
 Reusable starting points for a new project's own `.claude/` folder (or
-its `CLAUDE.md`) — pulled in with `scripts/init_project.sh`, run from
+its `AGENTS.md` / `CLAUDE.md`) — pulled in with `scripts/init_project.sh`, run from
 inside the target project.
 
 These are **copied**, not symlinked, and that's deliberate: a project's
@@ -13,7 +13,7 @@ without touching the template, and without the template silently
 changing work already committed elsewhere.
 
 ```
-./scripts/init_project.sh <claude-md|skills|hooks|agents> <template-name>
+./scripts/init_project.sh <agents-md|claude-md|skills|hooks|agents> <template-name>
 ```
 
 Run with no arguments from inside `.aitools-config` to list what's

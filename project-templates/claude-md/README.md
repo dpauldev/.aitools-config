@@ -11,7 +11,6 @@ ahead of that.
 
 ## Available templates
 
-- `learning-tutor-mode.md` — for learning repos where I write the code
-  and Claude coaches (explains, gives stubs, reviews, but doesn't edit
-  files unasked). Delete the tutor-mode section in repos where Claude
-  should write code freely.
+- `import-agents.md` — a one-line `CLAUDE.md` (`@AGENTS.md`) that makes
+  Claude Code read the project's `AGENTS.md`. Use it alongside an
+  `agents-md/` template so all rules live in one tool-neutral file.

@@ -2,8 +2,10 @@
 
 Personal AI coding-tool configuration — user-level behavioral defaults
 that apply across every project on this machine, plus a library of
-reusable project-level starting points. Currently holds configuration
-for Claude Code, under `claude/`.
+reusable project-level starting points. Covers the AI coding agents I
+use: Claude Code (`claude/`), GitHub Copilot in VS Code (fed from
+`shared/`), and Cline (planned). Tool-neutral rules live once in
+`shared/`; each tool gets them through a symlink or an import.
 
 Scope is AI-tooling configuration, not general machine setup.
 
@@ -15,21 +17,26 @@ Scope is AI-tooling configuration, not general machine setup.
 .aitools-config/
 ├── README.md
 ├── LICENSE
+├── shared/                     — tool-neutral rules, used by every AI coding agent
+│   ├── AGENTS.md               — user-level defaults; imported by claude/CLAUDE.md,
+│   │                             symlinked to ~/.copilot/copilot-instructions.md
+│   └── karpathy-guidelines.md  — imported by claude/CLAUDE.md, symlinked to
+│                                 ~/.copilot/instructions/karpathy-guidelines.instructions.md
 ├── claude/
-│   ├── CLAUDE.md               — user-level defaults, symlinked to ~/.claude/CLAUDE.md
-│   ├── karpathy-guidelines.md  — imported by CLAUDE.md via @-reference
+│   ├── CLAUDE.md               — Claude-only rules + imports of shared/, symlinked to ~/.claude/CLAUDE.md
 │   ├── settings.json           — user-level Claude Code settings, symlinked to ~/.claude/settings.json
 │   ├── skills/                 — user-level skills, symlinked to ~/.claude/skills/
 │   ├── hooks/                  — user-level hook scripts, symlinked to ~/.claude/hooks/
 │   └── agents/                 — user-level subagents, symlinked to ~/.claude/agents/
 ├── project-templates/          — reusable starting points, COPIED (not linked) into a project
-│   ├── claude-md/
+│   ├── agents-md/              — project AGENTS.md files (e.g. tutor mode), read by all agents
+│   ├── claude-md/              — project CLAUDE.md files (e.g. a one-line @AGENTS.md import)
 │   ├── skills/
 │   ├── hooks/
 │   └── agents/
 └── scripts/
-    ├── setup_claude_symlinks.sh — links everything under claude/ into ~/.claude/
-    └── init_project.sh          — copies one template into the current project's .claude/
+    ├── setup_claude_symlinks.sh — links claude/ into ~/.claude/ and shared/ into ~/.copilot/
+    └── init_project.sh          — copies one template into the current project
 ```
 
 Everything under `claude/` is scoped to things that are genuinely about
@@ -51,7 +58,8 @@ cd ~/.aitools-config
 
 This symlinks everything under `claude/` into `~/.claude/`, where
 Claude Code reads it automatically at the start of every session, in
-every project, on this machine. Re-run it any time after adding a new
+every project, on this machine — and links `shared/AGENTS.md` and
+`shared/karpathy-guidelines.md` into `~/.copilot/` for GitHub Copilot. Re-run it any time after adding a new
 skill, agent, or hook — it discovers new subfolders/files on its own,
 no script edit needed.
 
@@ -66,6 +74,22 @@ Note on `settings.json`: Claude Code itself also writes to this file
 the symlink. Check `git status` after changing settings in-app, and
 commit or `git restore` deliberately. Never put secrets here — use
 `~/.claude/settings.local.json` (not tracked) for anything sensitive.
+
+---
+
+## Required VS Code settings (not stored in this repo)
+
+The Copilot side of this setup depends on two VS Code **user** settings
+(Cmd+, → User tab). They live in VS Code's own settings.json, which is
+deliberately not managed here — set them by hand on a new machine:
+
+| Setting | Value | Why |
+|---|---|---|
+| `chat.useAgentsMdFile` | on | Copilot reads project-level `AGENTS.md` (tutor mode etc.) |
+| `chat.useClaudeMdFile` | off | Stops Copilot reading `CLAUDE.md` files, which contain Claude-only rules and `@imports` Copilot can't resolve |
+
+Copilot's user-level instructions themselves come from `shared/` via the
+symlinks created by `scripts/setup_claude_symlinks.sh`.
 
 ---
 
@@ -84,7 +108,7 @@ why.
 
 ## What's in here
 
-`CLAUDE.md` has these sections:
+`shared/AGENTS.md` (tool-neutral, every agent) has these sections:
 
 - **Background** — prior technical background, used to frame how
   explanations should land.
@@ -94,16 +118,22 @@ why.
 - **Command execution while learning** — explain and hand off mutating
   git/shell/CLI commands rather than running them, while those
   fundamentals are still being learned.
+- **Coding guidelines** / **Maintaining this file** — pointer to the
+  Karpathy guidelines; keep it lean.
+
+`claude/CLAUDE.md` imports both shared files and adds only Claude-specific
+rules:
+
 - **Session hygiene** — when to suggest a model/effort choice, when to
   compact before switching models or stepping away, and when to flag an
   unused MCP server.
-- **Maintaining this file** — keep it lean; add a rule only once it's
-  in active use.
 
 `karpathy-guidelines.md` is a separate file — general LLM-coding
 behavioral guidelines (avoid overcomplication, make surgical changes,
-define verifiable success criteria). Imported rather than duplicated
-inline — see its header comment for source and license.
+define verifiable success criteria). Kept as its own file: imported by
+`claude/CLAUDE.md`, and linked into Copilot's instructions folder (its
+`applyTo: "**"` header tells Copilot to apply it everywhere) — see its
+header comment for source and license.
 
 `skills/`, `hooks/`, and `agents/` (both under `claude/` and under
 `project-templates/`) start empty on purpose — populated as something
