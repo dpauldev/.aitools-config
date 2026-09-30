@@ -2,7 +2,7 @@
 
 Each `.md` file here is one user-level subagent definition (frontmatter
 + system prompt), symlinked into `~/.claude/agents/` by
-`scripts/setup_claude_symlinks.sh` — available in every project on this
+`scripts/setup_symlinks.sh` — available in every project on this
 machine, no script edit needed to add a new one.
 
 Reserve this for an agent that's genuinely about you rather than one

@@ -5,5 +5,5 @@
 claude/settings.local.json
 settings.local.json
 
-# Backups created by scripts/setup_claude_symlinks.sh or by hand
+# Backups created by scripts/setup_symlinks.sh or by hand
 *.backup-*

@@ -15,7 +15,7 @@
 #     hooks       ./.claude/hooks/<name>
 #     agents      ./.claude/agents/<name>
 #
-# WHY COPY, NOT SYMLINK (unlike setup_claude_symlinks.sh)
+# WHY COPY, NOT SYMLINK (unlike setup_symlinks.sh)
 #   A project must be self-contained: it has to work for anyone who clones
 #   it without .aitools-config, and must not change silently when the
 #   template is edited later. Once copied, the project's file is its own.

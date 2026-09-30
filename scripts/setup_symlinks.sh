@@ -6,7 +6,7 @@ set -e
 CONFIG_REPO="$HOME/.aitools-config/claude"
 CLAUDE_DIR="$HOME/.claude"
 
-echo "Checking AI tool configuration (Claude Code, GitHub Copilot)..."
+echo "Checking AI tool configuration (Claude Code, GitHub Copilot, Cline)..."
 
 # Ensure the target directory exists (Claude Code creates it on first run,
 # but a completely fresh machine may not have it yet)
@@ -70,6 +70,9 @@ link_item() {
 
 # --- Root-level files ---------------------------------------------------
 
+echo ""
+echo "[Claude Code]"
+
 link_item "$CONFIG_REPO/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
 link_item "$CONFIG_REPO/settings.json" "$CLAUDE_DIR/settings.json"
 
@@ -121,6 +124,9 @@ if [ -d "$CONFIG_REPO/hooks" ]; then
 fi
 
 # --- GitHub Copilot (VS Code) --------------------------------------------
+
+echo ""
+echo "[GitHub Copilot]"
 # Copilot has no @import, so the shared files are linked in directly.
 SHARED_DIR="$HOME/.aitools-config/shared"
 COPILOT_DIR="$HOME/.copilot"
@@ -129,4 +135,64 @@ mkdir -p "$COPILOT_DIR/instructions"
 link_item "$SHARED_DIR/AGENTS.md" "$COPILOT_DIR/copilot-instructions.md"
 link_item "$SHARED_DIR/karpathy-guidelines.md" "$COPILOT_DIR/instructions/karpathy-guidelines.instructions.md"
 
+# --- Cline (VS Code extension) -------------------------------------------
+# Cline reads a global AGENTS.md from ~/.agents/ and extra global rule
+# files from ~/Documents/Cline/Rules/. It never reads CLAUDE.md, so each
+# shared file reaches it exactly once. (It ignores Copilot's applyTo
+# header; a rule file without Cline's own "paths:" header always applies.)
+#
+# Cline IGNORES SYMLINKS in its rules folders (tested 28 Sep 2026), so
+# these two files are COPIED, not linked. A copy does not update itself:
+# re-run this script after editing anything in shared/. Never edit the
+# copies directly — shared/ in this repo is the source of truth.
+
+# Copy SOURCE to TARGET, keeping it in sync on every run:
+#   - an old symlink at TARGET is removed and replaced by a real copy
+#   - identical copy already there  -> nothing to do
+#   - different copy already there  -> back it up, then replace it
+copy_item() {
+    local SOURCE="$1"
+    local TARGET="$2"
+    local NAME
+    NAME=$(basename "$TARGET")
+
+    if [ ! -e "$SOURCE" ]; then
+        echo "Source $NAME not found:"
+        echo "$SOURCE"
+        exit 1
+    fi
+
+    # -L: TARGET is a symlink (e.g. left over from an earlier setup)
+    if [ -L "$TARGET" ]; then
+        rm "$TARGET"
+        cp "$SOURCE" "$TARGET"
+        echo "$NAME replaced symlink with a copy ✓"
+
+    # cmp -s compares two files silently; success means identical
+    elif [ -e "$TARGET" ] && cmp -s "$SOURCE" "$TARGET"; then
+        echo "$NAME copy up to date ✓"
+
+    elif [ -e "$TARGET" ]; then
+        BACKUP="$TARGET.backup-$(date +%Y-%m-%d-%H%M%S)"
+        mv "$TARGET" "$BACKUP"
+        cp "$SOURCE" "$TARGET"
+        echo "$NAME updated ✓ (previous copy backed up to $BACKUP)"
+
+    else
+        cp "$SOURCE" "$TARGET"
+        echo "$NAME copied ✓"
+    fi
+}
+
+echo ""
+echo "[Cline]"
+
+CLINE_AGENTS_DIR="$HOME/.agents"
+CLINE_RULES_DIR="$HOME/Documents/Cline/Rules"
+
+mkdir -p "$CLINE_AGENTS_DIR" "$CLINE_RULES_DIR"
+copy_item "$SHARED_DIR/AGENTS.md" "$CLINE_AGENTS_DIR/AGENTS.md"
+copy_item "$SHARED_DIR/karpathy-guidelines.md" "$CLINE_RULES_DIR/karpathy-guidelines.md"
+
+echo ""
 echo "Done."

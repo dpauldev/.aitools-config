@@ -4,7 +4,7 @@ Personal AI coding-tool configuration — user-level behavioral defaults
 that apply across every project on this machine, plus a library of
 reusable project-level starting points. Covers the AI coding agents I
 use: Claude Code (`claude/`), GitHub Copilot in VS Code (fed from
-`shared/`), and Cline (planned). Tool-neutral rules live once in
+`shared/`), and Cline (VS Code extension + CLI). Tool-neutral rules live once in
 `shared/`; each tool gets them through a symlink or an import.
 
 Scope is AI-tooling configuration, not general machine setup.
@@ -35,7 +35,8 @@ Scope is AI-tooling configuration, not general machine setup.
 │   ├── hooks/
 │   └── agents/
 └── scripts/
-    ├── setup_claude_symlinks.sh — links claude/ into ~/.claude/ and shared/ into ~/.copilot/
+    ├── setup_symlinks.sh        — links claude/ into ~/.claude/ and shared/ into ~/.copilot/;
+    │                             copies shared/ into Cline's folders
     └── init_project.sh          — copies one template into the current project
 ```
 
@@ -53,7 +54,7 @@ in a second project, doesn't have to be rewritten from scratch.
 ```bash
 git clone git@github.com:dpauldev/.aitools-config.git ~/.aitools-config
 cd ~/.aitools-config
-./scripts/setup_claude_symlinks.sh
+./scripts/setup_symlinks.sh
 ```
 
 This symlinks everything under `claude/` into `~/.claude/`, where
@@ -77,6 +78,44 @@ commit or `git restore` deliberately. Never put secrets here — use
 
 ---
 
+## Cline (copies, not links)
+
+Cline reads the same shared rules, but **ignores symlinks** in its rules
+folders (tested 28 Sep 2026), so the setup script **copies** them instead:
+
+| Repo file | Copied to |
+|---|---|
+| `shared/AGENTS.md` | `~/.agents/AGENTS.md` |
+| `shared/karpathy-guidelines.md` | `~/Documents/Cline/Rules/karpathy-guidelines.md` |
+
+- **After editing anything in `shared/`, re-run the setup script** — Claude
+  and Copilot see edits instantly (links), Cline only after the copy is
+  refreshed. The script reports `copy up to date ✓` or `updated ✓` and backs
+  up any copy it replaces. Never edit the copies directly.
+- Cline never reads `CLAUDE.md`; project rules reach it via the repo's
+  `AGENTS.md`.
+- **The global `AGENTS.md` will not appear in Cline's Rules panel** — only
+  `karpathy-guidelines.md` shows there. Confirmed by direct testing that its content still reaches Cline's context correctly; Cline's
+  own path-reporting for it is unreliable (it can't confirm the file's
+  path when asked not to use tools), but the content check matched
+  verbatim. Don't take its absence from the Rules panel as a sign it isn't
+  working.
+- **macOS privacy:** `~/Documents` is protected per app. Run the setup
+  script from a terminal that has Documents access (VS Code's terminal
+  does; iTerm needs System Settings → Privacy & Security → Files & Folders
+  → Documents Folder), otherwise the Cline step fails.
+- Required Cline settings (set in the extension's UI): Auto-approve only
+  **Read files**; edits, commands, web fetch and MCP left off; start in
+  **Plan** mode.
+- **Cline CLI: parked.** v3.0.65 is killed on launch on macOS 27 (Apple
+  Silicon) — its binary ships with an invalid code signature
+  (cline/cline#14590). Wait for a fixed release rather than re-signing it
+  locally; the CLI would use the same rules as the extension once it runs.
+  Note: the CLI auto-approves tools by default — run it with
+  `--auto-approve false`.
+
+---
+
 ## Required VS Code settings (not stored in this repo)
 
 The Copilot side of this setup depends on two VS Code **user** settings
@@ -89,7 +128,7 @@ deliberately not managed here — set them by hand on a new machine:
 | `chat.useClaudeMdFile` | off | Stops Copilot reading `CLAUDE.md` files, which contain Claude-only rules and `@imports` Copilot can't resolve |
 
 Copilot's user-level instructions themselves come from `shared/` via the
-symlinks created by `scripts/setup_claude_symlinks.sh`.
+symlinks created by `scripts/setup_symlinks.sh`.
 
 ---
 

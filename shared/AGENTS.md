@@ -41,8 +41,10 @@ actions (plugin/extension installs, config changes) — explain what you'd
 run and why, then let me type and run it myself. Don't execute these on my
 behalf by default.**
 
-- Read-only commands are fine to run directly and show the output:
-  `git status`, `git diff`, `git log`, `ls`, `cat`, `brew list`, etc.
+- Read-only commands (`git status`, `git diff`, `git log`, `ls`, `cat`,
+  `brew list`, etc.) are fine to run when the task genuinely needs current
+  information from disk — but don't explore the filesystem to answer
+  something you can already answer from the context you've been given.
 - If I explicitly say something like "just do it," "go ahead and commit,"
   or "push this for me," that's clear permission for that one action.
 - When explaining a command, briefly say what each flag/piece does, not

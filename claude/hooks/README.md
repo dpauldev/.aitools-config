@@ -1,7 +1,7 @@
 # Personal hooks
 
 Each `.sh` file here is a hook script, symlinked into `~/.claude/hooks/`
-by `scripts/setup_claude_symlinks.sh` for a stable path to reference.
+by `scripts/setup_symlinks.sh` for a stable path to reference.
 
 That symlink alone does NOT activate a hook. Claude Code only runs a
 hook once it's registered under the `"hooks"` key in its settings,
